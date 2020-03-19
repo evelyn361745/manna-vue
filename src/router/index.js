@@ -11,6 +11,7 @@ import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
 import nestedRouter from './modules/nested'
+import toolRouter from './modules/tool'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -83,7 +84,7 @@ export const constantRoutes = [
       }
     ]
   },
-  {
+ /* {
     path: '/documentation',
     component: Layout,
     children: [
@@ -121,7 +122,7 @@ export const constantRoutes = [
         meta: { title: 'Profile', icon: 'user', noCache: true }
       }
     ]
-  }
+  }*/
 ]
 
 /**
@@ -171,7 +172,7 @@ export const asyncRoutes = [
     ]
   },
 
-  {
+  /*{
     path: '/icon',
     component: Layout,
     children: [
@@ -182,7 +183,7 @@ export const asyncRoutes = [
         meta: { title: 'Icons', icon: 'icon', noCache: true }
       }
     ]
-  },
+  },*/
 
   /** when your routing map is too long, you can split it into small modules **/
   componentsRouter,
@@ -190,7 +191,7 @@ export const asyncRoutes = [
   nestedRouter,
   tableRouter,
 
-  {
+ /* {
     path: '/example',
     component: Layout,
     redirect: '/example/list',
@@ -381,8 +382,59 @@ export const asyncRoutes = [
         meta: { title: 'External Link', icon: 'link' }
       }
     ]
+  },*/
+  {
+    path: '/datax',
+    component: Layout,
+    redirect: '/datax/job',
+    name: 'Example',
+    meta: { title: 'datax', icon: 'example' },
+    children: [
+      // {
+      //   path: 'executor',
+      //   name: 'executor',
+      //   component: () => import('@/views/datax/executor/index'),
+      //   meta: { title: '执行器管理', icon: 'table' }
+      // },
+      // {
+      //   path: 'jobInfo',
+      //   name: 'jobInfo',
+      //   component: () => import('@/views/datax/jobInfo/index'),
+      //   meta: { title: '任务管理', icon: 'table' }
+      // },
+      // {
+      //   path: 'jobLog',
+      //   name: 'jobLog',
+      //   component: () => import('@/views/datax/jobLog/index'),
+      //   meta: { title: '调度日志', icon: 'table' }
+      // },
+      // {
+      //   path: 'jobTemplate',
+      //   name: 'jobTemplate',
+      //   component: () => import('@/views/datax/jobTemplate/index'),
+      //   meta: { title: 'datax 任务模板', icon: 'table' }
+      // },
+      {
+        path: 'jsonBuild',
+        name: 'jsonBuild',
+        component: () => import('@/views/datax/json-build/index'),
+        meta: { title: 'datax json构建', icon: 'table' }
+      },
+      {
+        path: 'jdbcDatasource',
+        name: 'jdbcDatasource',
+        component: () => import('@/views/datax/jdbc-datasource/index'),
+        meta: { title: 'json构建数据源', icon: 'table' }
+      },
+      // {
+      //   path: 'user',
+      //   name: 'user',
+      //   component: () => import('@/views/datax/user/index'),
+      //   meta: { title: '用户管理', icon: 'table', roles: ['ROLE_ADMIN'] }
+      // }
+    ]
   },
-
+  toolRouter,
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
