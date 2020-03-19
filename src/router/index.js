@@ -83,8 +83,8 @@ export const constantRoutes = [
         meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
       }
     ]
-  },
- /* {
+  }
+  /* {
     path: '/documentation',
     component: Layout,
     children: [
@@ -172,7 +172,7 @@ export const asyncRoutes = [
     ]
   },
 
-  /*{
+  /* {
     path: '/icon',
     component: Layout,
     children: [
@@ -191,7 +191,7 @@ export const asyncRoutes = [
   nestedRouter,
   tableRouter,
 
- /* {
+  /* {
     path: '/example',
     component: Layout,
     redirect: '/example/list',
@@ -425,7 +425,7 @@ export const asyncRoutes = [
         name: 'jdbcDatasource',
         component: () => import('@/views/datax/jdbc-datasource/index'),
         meta: { title: 'json构建数据源', icon: 'table' }
-      },
+      }
       // {
       //   path: 'user',
       //   name: 'user',
