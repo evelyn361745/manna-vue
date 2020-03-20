@@ -9,7 +9,7 @@
       <el-button type="primary" @click="handleSearch">Search</el-button>
       <el-button type="primary" @click="handleCreate">Add</el-button>
     </div>
-   <el-table
+    <el-table
       v-loading="listLoading"
       :data="list"
       element-loading-text="Loading"
@@ -18,22 +18,22 @@
       highlight-current-row
     >
       <el-table-column label="数据源" width="200" align="center">
-        <template slot-scope="scope">{{ scope.row.datasource }}</template>
+        <template slot-scope="scope">{{ scope.row. type}}</template>
       </el-table-column>
       <el-table-column label="数据源名称" width="150" align="center">
-        <template slot-scope="scope">{{ scope.row.datasourceName }}</template>
+        <template slot-scope="scope">{{ scope.row.dbname }}</template>
       </el-table-column>
       <el-table-column label="用户名" width="150" align="center">
-        <template slot-scope="scope">{{ scope.row.jdbcUsername ? scope.row.jdbcUsername:'-' }}</template>
+        <template slot-scope="scope">{{ scope.row.user ? scope.row.user:'-' }}</template>
       </el-table-column>
       <el-table-column label="jdbc url" width="200" align="center" :show-overflow-tooltip="true">
         <template slot-scope="scope">{{ scope.row.jdbcurl ? scope.row.jdbcurl:'-' }}</template>
       </el-table-column>
       <el-table-column label="jdbc驱动类" width="200" align="center" :show-overflow-tooltip="true">
-        <template slot-scope="scope">{{ scope.row.jdbcDriverClass ? scope.row.jdbcDriverClass:'-' }}</template>
+        <template slot-scope="scope">{{ scope.row.jdbcdriver ? scope.row.jdbcdriver:'-' }}</template>
       </el-table-column>
       <el-table-column label="comments" width="150" align="center">
-        <template slot-scope="scope">{{ scope.row.comments }}</template>
+        <template slot-scope="scope">{{ scope.row.description? scope.row.description:'-' }}</template>
       </el-table-column>
       <el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row}">
@@ -53,8 +53,8 @@
       :limit.sync="listQuery.size"
       @pagination="fetchData"
     />
-    <el-dialog title="新建数据源" :visible.sync="dialogFormVisible" width="800px">
-      <el-form ref="datasourceform" :model="datasourceform" :rules="rules" label-position="left" label-width="100px">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="800px">
+      <el-form ref="dataForm" :model="datasourceform" :rules="rules" label-position="left" label-width="100px">
         <el-form-item label="数据源名称" prop="dbname">
           <el-input v-model="datasourceform.dbname" placeholder="数据源名称" style="width:60%" />
         </el-form-item>
@@ -106,13 +106,13 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
-          取消
+          Cancel
         </el-button>
-        <el-button type="primary" @click="createDataSource()">
-          创建
+        <el-button type="primary" @click="dialogStatus==='new'?createDataSource():updateData()">
+          Confirm
         </el-button>
         <el-button type="primary" @click="testDataSource()">
-          测试连接
+          Test
         </el-button>
       </div>
     </el-dialog>
@@ -140,7 +140,7 @@ Date.prototype.format = function(format) {
   return format
 }
 export default {
-  components: {Pagination},
+  components: { Pagination },
   data() {
     return {
       search_data: '',
@@ -152,7 +152,13 @@ export default {
         size: 10
       },
       dialogFormVisible: false,
+      dialogStatus: '',
+      textMap: {
+        edit: 'Edit',
+        new: 'New'
+      },
       datasourceform: {
+        id: undefined,
         dbname: '',
         description: '',
         host: '',
@@ -186,22 +192,42 @@ export default {
     }
   },
   created() {
-    this.fetchData();
+    this.fetchData()
   },
   methods: {
+    // get the databases list
     fetchData() {
-      this.listLoading = true;
+      this.listLoading = true
       datasourceApi.list(this.listQuery).then(response => {
-        const {records} = response
-        const {total} = response
-        this.total = total
-        this.list = records
+        this.total = response.data.total
+        this.list = response.data.records
+        console.log(this.list)
         this.listLoading = false
       })
     },
+    resetForm() {
+      this.datasourceform = {
+        id: undefined,
+        dbname: '',
+        description: '',
+        host: '',
+        port: '',
+        user: '',
+        passwd: '',
+        type: '',
+        jdbcurl: '',
+        jdbcdriver: ''
+      }
+    },
     handleSearch() {},
+    //click the add
     handleCreate() {
+      this.resetForm()
+      this.dialogStatus = 'new'
       this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
     },
     selectDataSource(datasource) {
       if (datasource === 'mysql') {
@@ -221,8 +247,9 @@ export default {
         this.datasourceform.jdbcdriver = 'org.apache.hive.jdbc.HiveDriver'
       }
     },
+    //add the new database info
     createDataSource() {
-      this.$refs['datasourceform'].validate((valid) => {
+      this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const sub_data = this.datasourceform
           const now = new Date()
@@ -230,14 +257,15 @@ export default {
           sub_data['update_time'] = now.format('yyyy-MM-dd hh:mm:ss')
           datasourceApi.created(sub_data).then(result => {
             if (result.msg == 'ok') {
-                this.$notify({
+              this.$notify({
                 title: 'Success',
                 message: 'Created Successfully',
                 type: 'success',
                 duration: 2000
               })
+              this.fetchData()
               this.dialogFormVisible = false
-            }else {
+            } else {
               this.$notify({
                 title: 'Fail',
                 message: 'Create Fail',
@@ -249,14 +277,15 @@ export default {
         }
       })
     },
+    //test database connection
     testDataSource() {
-      this.$refs['datasourceform'].validate((valid) => {
+      this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const sub_data = this.datasourceform
           const now = new Date()
           sub_data['create_time'] = now.format('yyyy-MM-dd hh:mm:ss')
           sub_data['update_time'] = now.format('yyyy-MM-dd hh:mm:ss')
-          //console.log(this.datasourceform)
+          // console.log(this.datasourceform)
           datasourceApi.test(sub_data).then(result => {
             if (result.msg === 'ok') {
               this.$notify({
@@ -265,7 +294,7 @@ export default {
                 type: 'success',
                 duration: 2000
               })
-            }else {
+            } else {
               this.$notify({
                 title: 'Fail',
                 message: 'Tested Fail',
@@ -283,11 +312,63 @@ export default {
       this.visible = !(value === 'show')
     },
     handleUpdate(row) {
-
+      this.datasourceform = Object.assign({}, row)//copy obj
+      console.log(this.datasourceform)
+      this.dialogStatus = 'edit'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    updateData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.datasourceform) 
+          datasourceApi.updated(tempData).then(result => {
+             if (result.msg == 'ok') {
+              this.$notify({
+                title: 'Success',
+                message: 'Update Successfully',
+                type: 'success',
+                duration: 2000
+              })
+              this.fetchData()
+              this.dialogFormVisible = false
+            } else {
+              this.$notify({
+                title: 'Fail',
+                message: 'Update Fail',
+                type: 'fail',
+                duration: 2000
+              })
+            }
+          })
+        }
+      })
     },
     handleDelete(row) {
-
-    },
+      const idList = []
+      idList.push(row.id)
+      datasourceApi.deleted({idList:row.id}).then(result => {
+        if (result.msg == 'ok') {
+              this.$notify({
+                title: 'Success',
+                message: 'Delete Successfully',
+                type: 'success',
+                duration: 2000
+              })
+              this.fetchData()
+              this.dialogFormVisible = false
+            } else {
+              this.$notify({
+                title: 'Fail',
+                message: 'Delete Fail',
+                type: 'fail',
+                duration: 2000
+              })
+            }
+      })
+    }
   }
 }
 </script>

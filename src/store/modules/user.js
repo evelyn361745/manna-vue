@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken,getUid,setUid,removeUid} from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
 const state = {
@@ -8,8 +8,10 @@ const state = {
   avatar: '',
   introduction: '',
   roles: [],
-  uid: ''
+  uid: getUid(),
 }
+// console.log(JSON.parse(sessionStorage.getItem('store')))
+// const state = sessionStorage.getItem('store')
 
 const mutations = {
   SET_TOKEN: (state, token) => {
@@ -43,7 +45,7 @@ const actions = {
         commit('SET_TOKEN', data.token)
         commit('SET_UID', data.uid)
         setToken(data.token)
-        console.log(state)
+        setUid(data.uid)
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -88,6 +90,7 @@ const actions = {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
         removeToken()
+        removeUid()
         resetRouter()
 
         // reset visited views and cached views
@@ -107,6 +110,7 @@ const actions = {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
       removeToken()
+      removeUid()
       resolve()
     })
   },

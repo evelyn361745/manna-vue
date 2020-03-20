@@ -19,7 +19,7 @@ export function fetched(params) {
 
 export function updated(data) {
   return request({
-    url: '/jobJdbcDatasource',
+    url: '/datasource/info',
     method: 'put',
     data
   })
@@ -35,7 +35,7 @@ export function created(data) {
 
 export function deleted(data) {
   return request({
-    url: '/jobJdbcDatasource',
+    url: '/datasource/info',
     method: 'delete',
     params: data
   })

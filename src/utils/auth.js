@@ -13,3 +13,15 @@ export function setToken(token) {
 export function removeToken() {
   return Cookies.remove(TokenKey)
 }
+
+export function getUid() {
+  return Cookies.get('uid')
+}
+
+export function setUid(uid) {
+  return Cookies.set('uid', uid)
+}
+
+export function removeUid() {
+  return Cookies.remove('uid')
+}
